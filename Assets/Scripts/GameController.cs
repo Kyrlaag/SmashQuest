@@ -4,9 +4,11 @@ using UnityEngine;
 
 public class GameController : MonoBehaviour
 {
-    public GameObject nodePrefab;
+    public Block nodePrefab;
 
     private RectTransform _rectTransform;
+
+    [SerializeField] Sprite[] blockSprites;
 
     void Start()
     {
@@ -20,9 +22,15 @@ public class GameController : MonoBehaviour
         {
             for (int j = 0; j < 6; j++)
             {
-                Instantiate(nodePrefab, this.transform)
-                    .GetComponent<RectTransform>().anchoredPosition = new Vector2(i * 200, j * -200);
+                Block block = Instantiate(nodePrefab, this.transform);
+                block.SetPosition(i * 200, j * -200);
+                block.SetSprite(GetRandomSprites());
             }
         }
+    }
+
+    Sprite GetRandomSprites()
+    {
+        return blockSprites[Random.Range(0, blockSprites.Length)];
     }
 }
