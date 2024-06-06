@@ -17,4 +17,9 @@ public class Block : MonoBehaviour
     {
         image.sprite = sprite;
     }
+
+    public Sprite GetSprite()
+    {
+        return image.sprite;
+    }
 }
