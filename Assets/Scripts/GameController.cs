@@ -1,15 +1,18 @@
 using System.Collections;
 using System.Collections.Generic;
+using Unity.VisualScripting;
 using UnityEngine;
 
 public class GameController : MonoBehaviour
 {
-
+    [SerializeField] int rows = 5;
+    [SerializeField] int columns = 6;
     [SerializeField] Sprite[] blockSprites;
 
     public Block nodePrefab;
     private RectTransform _rectTransform;
-    private Block[,] blocks;
+    private Block[,] _blocks;
+    private Block _selectedBlock;
 
 
     void Start()
@@ -18,11 +21,44 @@ public class GameController : MonoBehaviour
         CreateNodes();
     }
 
+    void Update()
+    {
+        if (Input.GetMouseButtonDown(0))
+        {
+            Vector3 mousePos = Input.mousePosition;
+            Debug.Log(mousePos);
+            RaycastHit2D hit = Physics2D.Raycast(mousePos, Vector2.zero);
+
+            if (hit.collider != null)
+            {
+                Debug.Log(hit.collider.gameObject.name);
+                Block clickedBlock = hit.collider.GetComponent<Block>();
+
+                if (clickedBlock != null)
+                {
+                    if (_selectedBlock == null)
+                    {
+                        SelectBlock(clickedBlock);
+                    }
+
+                    else if (_selectedBlock == clickedBlock)
+                    {
+                        DeselectBlock();
+                    }
+
+                    else
+                    {
+                        DeselectBlock();
+                        SelectBlock(clickedBlock);
+                    }
+                }
+            }
+        }
+    }
+
     void CreateNodes()
     {
-        int rows = 5;
-        int columns = 6;
-        blocks = new Block[rows, columns];
+        _blocks = new Block[rows, columns];
 
         for (int i = 0; i < rows; i++)
         {
@@ -38,8 +74,23 @@ public class GameController : MonoBehaviour
                 } while (IsMatch(i, j, randomSprite));
 
                 block.SetSprite(randomSprite);
-                blocks[i, j] = block;
+                _blocks[i, j] = block;
             }
+        }
+    }
+
+    void SelectBlock(Block block)
+    {
+        _selectedBlock = block;
+        block.Highlight(true);
+    }
+
+    void DeselectBlock()
+    {
+        if (_selectedBlock != null)
+        {
+            _selectedBlock.Highlight(false);
+            _selectedBlock = null;
         }
     }
 
@@ -52,7 +103,7 @@ public class GameController : MonoBehaviour
     {
         if (col >= 2)
         {
-            if (blocks[row, col - 1]?.GetSprite() == sprite && blocks[row, col - 2]?.GetSprite() == sprite)
+            if (_blocks[row, col - 1]?.GetSprite() == sprite && _blocks[row, col - 2]?.GetSprite() == sprite)
             {
                 return true;
             }
@@ -60,7 +111,7 @@ public class GameController : MonoBehaviour
 
         if (row >= 2)
         {
-            if (blocks[row - 1, col]?.GetSprite() == sprite && blocks[row - 2, col]?.GetSprite() == sprite)
+            if (_blocks[row - 1, col]?.GetSprite() == sprite && _blocks[row - 2, col]?.GetSprite() == sprite)
             {
                 return true;
             }
